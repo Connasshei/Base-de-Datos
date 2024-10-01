@@ -1,0 +1,437 @@
+CREATE DATABASE Farmacia;
+USE Farmacia;
+CREATE TABLE pacientes(  --
+	id_paciente INT NOT NULL auto_increment PRIMARY KEY,
+    nombre_paciente VARCHAR(50),
+    apellido VARCHAR(50),
+    fecha_nacimiento date,
+    direccion VARCHAR(200),
+    telefono VARCHAR(15)
+);
+CREATE TABLE historiales(	--
+	id_historial_medico INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    id_paciente INT,
+    historial TEXT NOT NULL,
+    Foreign key (id_paciente) references pacientes(id_paciente)
+);
+CREATE TABLE especialidades (	--
+    id_especialidad INT AUTO_INCREMENT PRIMARY KEY,
+    especialidad VARCHAR(100)
+);
+CREATE TABLE personal( 		/*10*/
+	id_personal INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(50),
+    apellido_paterno VARCHAR(50),
+    apellido_materno VARCHAR(50),
+    fecha_contratacion DATE,
+    correo_electronico VARCHAR(200),
+    telefono VARCHAR(15)
+);
+
+CREATE TABLE medicos(	--
+	id_medico INT NOT NULL auto_increment PRIMARY KEY,
+    id_especialidad INT,
+    id_personal INT,
+    FOREIGN KEY (id_personal) references personal(id_personal),
+    FOREIGN KEY (id_especialidad) references especialidades(id_especialidad)
+);
+
+/*CREATE TABLE medicos_especialidades (
+    id_medico INT,
+    id_especialidad INT,
+    PRIMARY KEY (id_medico, id_especialidad),
+    FOREIGN KEY (id_medico) REFERENCES medicos(id_medico),
+    FOREIGN KEY (id_especialidad) REFERENCES especialidades(id_especialidad)
+);*/
+
+CREATE TABLE ubicaciones_farmacias( --
+	id_ubicacion_farmacia INT NOT NULL auto_increment PRIMARY KEY,
+    ubicacion_farmacia VARCHAR(100)
+);
+CREATE TABLE farmaceuticos( --
+	id_farmaceutico INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    id_personal INT,
+    id_ubicacion_farmacia INT,
+	FOREIGN KEY (id_ubicacion_farmacia) references ubicaciones_farmacias(id_ubicacion_farmacia),
+	FOREIGN KEY (id_personal) references personal(id_personal)
+);
+
+CREATE TABLE presentaciones(	/*10*/
+	id_presentaciones INT NOT NULL auto_increment PRIMARY KEY,
+    presentacion VARCHAR(50)
+);
+CREATE TABLE medicamentos(		/*10*/
+	id_medicamento INT NOT NULL auto_increment PRIMARY KEY,
+    nombre_medicamento VARCHAR(100),
+    descripcion TEXT,
+	id_presentaciones INT NOT NULL,
+    stock_disponible INT,
+    fecha_vencimiento DATE,
+    precio_compra DECIMAL (10,2),
+    precio_sugerido DECIMAL (10,2),
+    FOREIGN KEY (id_presentaciones) REFERENCES presentaciones(id_presentaciones)
+);
+CREATE TABLE prescripciones(	--
+	id_prescripcion INT NOT NULL auto_increment PRIMARY KEY,
+    fecha DATE,
+    id_medico INT,
+    id_paciente INT,
+    id_medicamento INT,
+	id_presentacion INT,
+	dosis VARCHAR(50),
+    frecuencia VARCHAR(50),
+    duracion VARCHAR(50),
+    cantidad INT,
+    FOREIGN KEY (id_medico) REFERENCES medicos(id_medico),
+    FOREIGN KEY (id_paciente) REFERENCES pacientes(id_paciente),
+    FOREIGN KEY (id_medicamento) REFERENCES medicamentos(id_medicamento)
+);
+CREATE TABLE proveedores(
+	id_proveedor INT NOT NULL AUTO_INCREMENT primary key,
+    nombre_proveedor VARCHAR(50),
+    direccion VARCHAR(200),
+    telefono VARCHAR(15),
+    correo_electronico VARCHAR(200)
+);
+CREATE TABLE farmacia_inventario(
+	id_producto INT NOT NULL auto_increment primary key,
+    id_medicamento INT,
+    cantidad_disponible INT,
+    id_ubicacion_farmacia INT,
+    id_proveedor INT,
+    FOREIGN KEY (id_proveedor) references proveedores(id_proveedor),
+	FOREIGN KEY (id_ubicacion_farmacia) references ubicaciones_farmacias(id_ubicacion_farmacia)
+);
+
+
+
+CREATE table ventas_farmacia (
+	id_venta INT NOT NULL AUTO_INCREMENT primary key,
+    fecha_venta DATE,
+    id_paciente INT,
+	id_medicamento INT,
+    id_farmaceutico INT,
+    cantidad_vendida INT,
+    total_venta DECIMAL(10,2),
+    foreign key (id_paciente) REFERENCES pacientes(id_paciente),
+    foreign key (id_medicamento) REFERENCES medicamentos(id_medicamento),
+    foreign key (id_farmaceutico) REFERENCES farmaceuticos(id_farmaceutico)
+);
+
+
+
+-- Inserción de datos en la tabla Pacientes
+INSERT INTO pacientes (nombre_paciente, apellido, fecha_nacimiento, direccion, telefono)
+VALUES
+('Juan', 'Pérez', '1980-05-15', 'Calle 123, Sucre, Bolivia', '789654321' ),
+('Maria', 'López', '1992-08-21', 'Avenida 456, Sucre, Bolivia', '654987123' ),
+('Carlos', 'Gonzales', '1975-12-30', 'Calle 789, La Paz, Bolivia', '789321654' ),
+('Ana', 'Rodriguez', '1988-03-12', 'Calle 101, Santa Cruz, Bolivia', '741852963' ),
+('Luis', 'Mendoza', '1995-10-10', 'Avenida 202, Cochabamba, Bolivia', '963852741' ),
+('Jorge', 'Vargas', '1990-01-05', 'Calle Principal 100, Tarija, Bolivia', '789456123' ),
+('Elena', 'Ramos', '1985-11-20', 'Avenida Secundaria 200, Potosí, Bolivia', '963741258' ),
+('Fernando', 'Salinas', '1978-07-14', 'Calle Terciaria 300, Oruro, Bolivia', '741963852' ),
+('Gabriela', 'Fernández', '2000-02-18', 'Calle Cuarta 400, Cochabamba, Bolivia', '852741963' ),
+('Victor', 'Soto', '1998-09-09', 'Calle Quinto 500, La Paz, Bolivia', '963258741');
+
+
+
+INSERT INTO historiales (id_paciente, historial)
+VALUES
+( 1, 'Alergia al polen'),
+( 2, 'Historial de hipertensión'),
+( 3, 'Asma crónica'),
+( 4, 'Cirugía cardíaca en 2015'),
+( 5, 'Ninguna condición previa'),
+( 6, 'Diabetes tipo 2'),
+( 7, 'Alergia a la penicilina'),
+( 8, 'Hipertensión controlada'),
+( 9, 'Ninguna condición previa'),
+( 10, 'Historial de migrañas fuertes');
+
+-- Inserción de especialidades en la tabla Especialidades
+INSERT INTO especialidades (especialidad)
+VALUES
+('Cardiología'),
+('Pediatría'),
+('Neurología'),
+('Ginecología'),
+('Dermatología'),
+('Oftalmología'),
+('Ortopedia'),
+('Endocrinología'),
+('Psiquiatría'),
+('Medicina General');
+
+-- Inserción de médicos en la tabla Medicos con apellidos y fecha de contratación
+INSERT INTO personal (nombre, apellido_paterno, apellido_materno, fecha_contratacion, telefono, correo_electronico)
+VALUES
+('Pedro', 'Gutiérrez', 'Martínez', '2020-01-15', '789456123', 'pedro.gutierrez@hospital.com'),
+('Ana', 'Molina', 'Fernández', '2019-05-20', '963741258', 'ana.molina@hospital.com'),
+('Roberto', 'Vega', 'Rodríguez', '2018-07-10', '741963852', 'roberto.vega@hospital.com'),
+('María', 'Hidalgo', 'Pérez', '2021-03-25', '852741963', 'maria.hidalgo@hospital.com'),
+('Luis', 'Escobar', 'López', '2022-11-30', '963258741', 'luis.escobar@hospital.com'),
+('Clara', 'Sánchez', 'Ramírez', '2017-09-12', '741852963', 'clara.sanchez@hospital.com'),
+('Carlos', 'Rojas', 'Gómez', '2016-04-01', '789321654', 'carlos.rojas@hospital.com'),
+('Verónica', 'Paz', 'Jiménez', '2023-02-18', '654987123', 'veronica.paz@hospital.com'),
+('José', 'Arias', 'Cruz', '2021-06-22', '789654321', 'jose.arias@hospital.com'),
+('Elena', 'Martínez', 'Vargas', '2020-12-15', '963852741', 'elena.martinez@hospital.com');
+
+
+INSERT INTO medicos (id_especialidad, id_personal)
+VALUES
+(2 , 1),
+(3 , 1),
+(4 , 2),
+(5, 3),
+(1, 4),
+(3 , 5);
+
+
+INSERT INTO ubicaciones_farmacias (ubicacion_farmacia)
+values
+('Calle Olañeta N°330'),
+('Avenida 6 de agosto'),
+('Zona el Patacón');
+
+
+INSERT INTO  farmaceuticos(id_personal, id_ubicacion_farmacia)
+values
+(6 , 2),
+(7 , 1),
+(8 , 1),
+(9 , 3),
+(10, 2);
+
+-- Inserción de tipos de presentaciones de medicamentos
+INSERT INTO presentaciones (presentacion)
+VALUES
+('Tabletas'),
+('Jarabe'),
+('Inyectable'),
+('Cápsulas'),
+('Crema'),
+('Supositorio'),
+('Solución'),
+('Polvo');
+
+
+-- Inserción de medicamentos en la tabla Medicamentos
+INSERT INTO medicamentos (nombre_medicamento, descripcion, id_presentaciones, stock_disponible, fecha_vencimiento, precio_compra, precio_sugerido)
+VALUES
+('Paracetamol', 'Analgésico y antipirético', 1, 100, '2025-12-31', 5.00, 7.00),
+('Ibuprofeno', 'Antiinflamatorio no esteroide', 1, 150, '2026-01-15', 4.00, 6.00),
+('Amoxicilina', 'Antibiótico de amplio espectro', 3, 200, '2025-05-20', 10.00, 12.00),
+('Loratadina', 'Antihistamínico para alergias', 2, 80, '2025-08-30', 3.50, 5.00),
+('Metformina', 'Medicamento para la diabetes tipo 2', 1, 60, '2026-03-01', 15.00, 20.00),
+('Ciprofloxacino', 'Antibiótico', 3, 120, '2025-11-10', 8.00, 10.00),
+('Omeprazol', 'Inhibidor de bomba de protones', 1, 90, '2026-02-18', 7.00, 9.00),
+('Amlodipino', 'Medicamento para la hipertensión', 1, 110, '2025-07-15', 10.50, 14.00),
+('Simvastatina', 'Medicamento para reducir el colesterol', 1, 75, '2025-10-25', 12.00, 15.00),
+('Salbutamol', 'Broncodilatador para el asma', 2, 50, '2025-09-01', 6.00, 8.00);
+
+
+
+
+
+
+-- Inserción de datos en la tabla farmacia_inventario
+INSERT INTO farmacia_inventario (id_medicamento, cantidad_disponible, id_ubicacion_farmacia, id_proveedor)
+VALUES
+(1, 50, 1, 1),  -- Paracetamol
+(2, 75, 1, 2),  -- Ibuprofeno
+(3, 30, 2, 3),  -- Amoxicilina
+(4, 60, 3, 1),  -- Loratadina
+(5, 45, 1, 2),  -- Metformina
+(6, 90, 2, 3),  -- Ciprofloxacino
+(7, 80, 3, 1),  -- Omeprazol
+(8, 100, 1, 2), -- Amlodipino
+(9, 25, 2, 3),  -- Simvastatina
+(10, 15, 3, 1); -- Salbutamol
+
+-- Inserción de datos en la tabla Proveedores
+INSERT INTO proveedores (nombre_proveedor, direccion , telefono , correo_electronico)
+VALUES
+('Farmacia Central', 'Laboratorio Central Parque Simon Bolivar' , '70314789' , 'info@farmaciacentral.com'),
+('Distribuciones Salud', 'Distribuidora Santa Cruz' , '7285369' , 'contacto@distribucionessalud.com'),
+('Medicamentos Globales', 'Potosi, Bustillos n 1002', '7285147' ,  'atencion@medicamentosglobales.com'),
+('Salud y Bienestar', 'Tarija Zona Tomatitas', '7031238' ,'soporte@saludybienestar.com'),
+('Medicina Directa',  'Lajastambo Sucre' , '68287432' ,  'ventas@medicinadirecta.com');
+
+-- Inserción de datos en la tabla ventas_farmacia
+INSERT INTO ventas_farmacia (fecha_venta, id_paciente, id_medicamento, cantidad_vendida, total_venta)
+VALUES
+('2024-09-11', 1, 1, 2, 14.00),  -- Jorge Vargas compra 2 Paracetamol
+('2024-09-12', 2, 3, 1, 12.00),  -- Elena Ramos compra 1 Amoxicilina
+('2024-09-13', 3, 4, 5, 25.00),  -- Fernando Salinas compra 5 Loratadina
+('2024-09-14', 4, 2, 3, 18.00),  -- Gabriela Fernández compra 3 Ibuprofeno
+('2024-09-15', 5, 5, 1, 20.00),  -- Victor Soto compra 1 Metformina
+('2024-09-16', 6, 6, 4, 40.00),  -- Clara Sánchez compra 4 Ciprofloxacino
+('2024-09-17', 7, 7, 2, 18.00),  -- Carlos Rojas compra 2 Omeprazol
+('2024-09-18', 8, 8, 1, 14.00),  -- Verónica Paz compra 1 Amlodipino
+('2024-09-19', 9, 9, 3, 45.00),  -- José Arias compra 3 Simvastatina
+('2024-09-20', 10, 10, 1, 8.00); -- Elena Martínez compra 1 Salbutamol
+
+
+
+INSERT INTO medicamentos (nombre_medicamento, descripcion, id_presentaciones, stock_disponible, fecha_vencimiento, precio_compra, precio_sugerido)
+VALUES
+('Paracetamol', 'Analgésico y antipirético', 1, 100, '2025-12-31', 5.00, 7.00),
+('Ibuprofeno', 'Antiinflamatorio no esteroide', 1, 150, '2026-01-15', 4.00, 6.00),
+('Amoxicilina', 'Antibiótico de amplio espectro', 3, 200, '2025-05-20', 10.00, 12.00),
+('Loratadina', 'Antihistamínico para alergias', 2, 80, '2025-08-30', 3.50, 5.00),
+('Metformina', 'Medicamento para la diabetes tipo 2', 1, 60, '2026-03-01', 15.00, 20.00),
+('Ciprofloxacino', 'Antibiótico', 3, 120, '2025-11-10', 8.00, 10.00),
+('Omeprazol', 'Inhibidor de bomba de protones', 1, 90, '2026-02-18', 7.00, 9.00),
+('Amlodipino', 'Medicamento para la hipertensión', 1, 110, '2025-07-15', 10.50, 14.00),
+('Simvastatina', 'Medicamento para reducir el colesterol', 1, 75, '2025-10-25', 12.00, 15.00),
+('Salbutamol', 'Broncodilatador para el asma', 2, 50, '2025-09-01', 6.00, 8.00);
+
+
+-- Inserción de datos en la tabla ventas_farmacia
+INSERT INTO ventas_farmacia (fecha_venta, id_paciente, id_farmaceutico, id_medicamento, cantidad_vendida, total_venta)
+VALUES
+('2024-09-11', 1, 1,  1, 2, 14.00),  -- Jorge Vargas compra 2 Paracetamol
+('2024-09-12', 2, 2 , 3, 1, 12.00),  -- Elena Ramos compra 1 Amoxicilina
+('2024-09-13', 3, 3 , 4, 5, 25.00),  -- Fernando Salinas compra 5 Loratadina
+('2024-09-14', 4, 1 , 2, 3, 18.00),  -- Gabriela Fernández compra 3 Ibuprofeno
+('2024-09-15', 5, 1 , 5, 1, 20.00),  -- Victor Soto compra 1 Metformina
+('2024-09-16', 6, 3 , 6, 4, 40.00),  -- Clara Sánchez compra 4 Ciprofloxacino
+('2024-09-17', 7, 4 , 7, 2, 18.00),  -- Carlos Rojas compra 2 Omeprazol
+('2024-09-18', 8, 2 , 8, 1, 14.00),  -- Verónica Paz compra 1 Amlodipino
+('2024-09-19', 9, 1 , 9, 3, 45.00),  -- José Arias compra 3 Simvastatina
+('2024-09-20', 10, 4, 10, 1, 8.00); -- Elena Martínez compra 1 Salbutamol
+
+-- Inserción de datos en la tabla Prescripciones
+INSERT INTO prescripciones (id_medico, id_paciente, id_medicamento, fecha, dosis, frecuencia, duracion , cantidad)
+VALUES
+(1, 1, 1, '2024-09-01', '500 mg', 'Cada 8 horas', '5 días' , 15),  -- Prescripción de Paracetamol por Pedro Gutiérrez para Jorge Vargas
+(2, 2, 3, '2024-09-02', '250 mg', 'Cada 12 horas', '7 días' , 14), -- Prescripción de Amoxicilina por Ana Molina para Elena Ramos
+(3, 3, 4, '2024-09-03', '10 mg', 'Una vez al día', '10 días' , 10),  -- Prescripción de Loratadina por Roberto Vega para Fernando Salinas
+(4, 4, 2, '2024-09-04', '400 mg', 'Cada 8 horas', '3 días' , 9),  -- Prescripción de Ibuprofeno por María Hidalgo para Gabriela Fernández
+(5, 5, 6, '2024-09-05', '500 mg', 'Cada 12 horas', '5 días' , 10),  -- Prescripción de Ciprofloxacino por Luis Escobar para Victor Soto
+(1, 6, 7, '2024-09-06', '20 mg', 'Una vez al día', '15 días' , 15),  -- Prescripción de Omeprazol por Pedro Gutiérrez para Clara Sánchez
+(2, 7, 8, '2024-09-07', '5 mg', 'Cada 24 horas', '30 días' , 30),  -- Prescripción de Amlodipino por Ana Molina para Carlos Rojas
+(3, 8, 9, '2024-09-08', '10 mg', 'Cada 12 horas', '20 días' , 40), -- Prescripción de Simvastatina por Roberto Vega para Verónica Paz
+(4, 9, 10, '2024-09-09', '2.5 mg', 'Cada 4 horas', '7 días' , 42), -- Prescripción de Salbutamol por María Hidalgo para José Arias
+(5, 10, 5, '2024-09-10', '500 mg', 'Cada 8 horas', '5 días' , 15);  -- Prescripción de Metformina por Luis Escobar para Elena Martínez
+
+
+-- consultas
+
+SELECT id_personal , CONCAT( nombre , ' ', apellido_paterno, ' ' , apellido_materno) as 'Nombres Personal' FROM personal;
+
+-- ver las compras que hizo cada paciente
+USE farmacia;
+SELECT 
+    ventas_farmacia.fecha_venta, 
+    concat(pacientes.nombre_paciente , ' ' , pacientes.apellido) AS nombre_paciente, 
+    medicamentos.nombre_medicamento, 
+    ventas_farmacia.cantidad_vendida, 
+    ventas_farmacia.total_venta
+FROM 
+    ventas_farmacia
+JOIN 
+    pacientes  ON ventas_farmacia.id_paciente = pacientes.id_paciente
+JOIN 
+    medicamentos ON ventas_farmacia.id_medicamento = medicamentos.id_medicamento;
+
+SELECT 
+    prescripciones.fecha, 
+	-- CONCAT(personal.nombre , ' ', personal.apellido_paterno, ' ', personal.apellido_materno) AS Medico, 
+    medicos.id_personal AS id_medico,
+    concat(pacientes.nombre_paciente , ' ' , pacientes.apellido) AS nombre_paciente,  
+    medicamentos.nombre_medicamento, 
+    prescripciones.dosis, 
+    prescripciones.frecuencia, 
+    prescripciones.duracion
+FROM 
+    Prescripciones
+JOIN 
+    Medicos ON prescripciones.id_medico = medicos.id_medico
+JOIN 
+    pacientes  ON prescripciones.id_paciente = pacientes.id_paciente
+JOIN 
+    medicamentos  ON prescripciones.id_medicamento = medicamentos.id_medicamento;
+
+-- VER LOS MEDICAMENTOS Y de que proveedor son    
+
+SELECT 
+    farmacia_inventario.id_producto, 
+    medicamentos.nombre_medicamento, 
+    farmacia_inventario.cantidad_disponible, 
+    ubicaciones_farmacias.ubicacion_farmacia AS Ubicacion, 
+    Proveedores.nombre_proveedor
+FROM 
+    farmacia_inventario 
+JOIN 
+    medicamentos  ON farmacia_inventario.id_medicamento = medicamentos.id_medicamento
+JOIN 
+    ubicaciones_farmacias  ON farmacia_inventario.id_ubicacion_farmacia = ubicaciones_farmacias.id_ubicacion_farmacia
+RIGHT JOIN 
+    proveedores  ON farmacia_inventario.id_proveedor = proveedores.id_proveedor;
+
+-- mostrar todos los médicos y sus especialidades
+
+SELECT 
+	medicos.id_medico,
+    CONCAT(personal.nombre , ' ', personal.apellido_paterno, ' ' , personal.apellido_materno) as 'Nombre Medico',
+    especialidades.especialidad
+FROM 
+    personal
+JOIN 
+    medicos ON medicos.id_personal = personal.id_personal
+JOIN 
+    especialidades  ON medicos.id_especialidad = especialidades.id_especialidad;
+
+-- ver a los farmaceuticos y dónde trabajan
+
+SELECT 
+	farmaceuticos.id_farmaceutico,
+    CONCAT(personal.nombre , ' ', personal.apellido_paterno, ' ' , personal.apellido_materno) as 'Nombres Farmaceuticos',
+    ubicaciones_farmacias.ubicacion_farmacia
+FROM 
+    personal
+JOIN 
+    farmaceuticos ON farmaceuticos.id_personal = personal.id_personal
+JOIN 
+    ubicaciones_farmacias ON farmaceuticos.id_ubicacion_farmacia = ubicaciones_farmacias.id_ubicacion_farmacia;
+
+
+-- medicamentos con sus presentaciones
+
+SELECT 
+    medicamentos.nombre_medicamento, 
+    presentaciones.presentacion AS Presentacion
+FROM 
+    medicamentos
+JOIN 
+    Presentaciones ON medicamentos.id_presentaciones = presentaciones.id_presentaciones;
+
+
+-- medicamentos y la cantidad disponible
+SELECT 
+    medicamentos.nombre_medicamento, 
+    ubicaciones_farmacias.ubicacion_farmacia AS Ubicacion, 
+    SUM(farmacia_inventario.cantidad_disponible) AS Total_Cantidad_Disponible
+FROM 
+    farmacia_inventario
+JOIN 
+    medicamentos ON farmacia_inventario.id_medicamento = medicamentos.id_medicamento
+JOIN 
+    ubicaciones_farmacias  ON farmacia_inventario.id_ubicacion_farmacia = ubicaciones_farmacias.id_ubicacion_farmacia
+GROUP BY 
+    medicamentos.nombre_medicamento, ubicaciones_farmacias.ubicacion_farmacia;
+
+-- pacientes con sus prescripciones y total de medicamentos prescritos
+SELECT 
+    Concat(pacientes.nombre_paciente , ' ' , pacientes.apellido) AS Paciente, 
+    COUNT(prescripciones.id_medicamento) AS Total_Prescripciones
+FROM 
+    prescripciones
+JOIN 
+    pacientes ON prescripciones.id_paciente = pacientes.id_paciente
+GROUP BY 
+    Concat(pacientes.nombre_paciente , ' ' , pacientes.apellido);
+
+
